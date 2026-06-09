@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-06-07",
+  "description": "Mystic Tarot 자산 매니페스트. Next.js 앱에서 자산을 식별/로딩할 때 사용.",
+  "cards": {
+    "count": 78,
+    "image_size": { "width": 768, "height": 1344 },
+    "formats": ["jpg", "webp"],
+    "directory": "cards/optimized",
+    "major_arcana": [
+      { "id": 0,  "slug": "00-fool",            "name": "The Fool",          "name_ko": "바보" },
+      { "id": 1,  "slug": "01-magician",        "name": "The Magician",      "name_ko": "마법사" },
+      { "id": 2,  "slug": "02-high-priestess",  "name": "The High Priestess","name_ko": "여사제" },
+      { "id": 3,  "slug": "03-empress",         "name": "The Empress",       "name_ko": "여황제" },
+      { "id": 4,  "slug": "04-emperor",         "name": "The Emperor",       "name_ko": "황제" },
+      { "id": 5,  "slug": "05-hierophant",      "name": "The Hierophant",    "name_ko": "교황" },
+      { "id": 6,  "slug": "06-lovers",          "name": "The Lovers",        "name_ko": "연인" },
+      { "id": 7,  "slug": "07-chariot",         "name": "The Chariot",       "name_ko": "전차" },
+      { "id": 8,  "slug": "08-strength",        "name": "Strength",          "name_ko": "힘" },
+      { "id": 9,  "slug": "09-hermit",          "name": "The Hermit",        "name_ko": "은둔자" },
+      { "id": 10, "slug": "10-wheel-of-fortune","name": "Wheel of Fortune",  "name_ko": "운명의 수레바퀴" },
+      { "id": 11, "slug": "11-justice",         "name": "Justice",           "name_ko": "정의" },
+      { "id": 12, "slug": "12-hanged-man",      "name": "The Hanged Man",    "name_ko": "매달린 사람" },
+      { "id": 13, "slug": "13-death",           "name": "Death",             "name_ko": "죽음" },
+      { "id": 14, "slug": "14-temperance",      "name": "Temperance",        "name_ko": "절제" },
+      { "id": 15, "slug": "15-devil",           "name": "The Devil",         "name_ko": "악마" },
+      { "id": 16, "slug": "16-tower",           "name": "The Tower",         "name_ko": "탑" },
+      { "id": 17, "slug": "17-star",            "name": "The Star",          "name_ko": "별" },
+      { "id": 18, "slug": "18-moon",            "name": "The Moon",          "name_ko": "달" },
+      { "id": 19, "slug": "19-sun",             "name": "The Sun",           "name_ko": "태양" },
+      { "id": 20, "slug": "20-judgement",       "name": "Judgement",         "name_ko": "심판" },
+      { "id": 21, "slug": "21-world",           "name": "The World",         "name_ko": "세계" }
+    ],
+    "minor_arcana_suits": [
+      { "suit": "wands",     "element": "fire",  "theme": "열정/창조/행동",  "slug_prefix": "wands" },
+      { "suit": "cups",      "element": "water", "theme": "감정/관계/직관",  "slug_prefix": "cups" },
+      { "suit": "swords",    "element": "air",   "theme": "사고/갈등/진실",  "slug_prefix": "swords" },
+      { "suit": "pentacles", "element": "earth", "theme": "물질/재정/안정",  "slug_prefix": "pentacles" }
+    ],
+    "minor_arcana_ranks": [
+      { "rank": 1,  "slug_suffix": "01", "name": "Ace",    "name_ko": "에이스" },
+      { "rank": 2,  "slug_suffix": "02", "name": "Two",    "name_ko": "2" },
+      { "rank": 3,  "slug_suffix": "03", "name": "Three",  "name_ko": "3" },
+      { "rank": 4,  "slug_suffix": "04", "name": "Four",   "name_ko": "4" },
+      { "rank": 5,  "slug_suffix": "05", "name": "Five",   "name_ko": "5" },
+      { "rank": 6,  "slug_suffix": "06", "name": "Six",    "name_ko": "6" },
+      { "rank": 7,  "slug_suffix": "07", "name": "Seven",  "name_ko": "7" },
+      { "rank": 8,  "slug_suffix": "08", "name": "Eight",  "name_ko": "8" },
+      { "rank": 9,  "slug_suffix": "09", "name": "Nine",   "name_ko": "9" },
+      { "rank": 10, "slug_suffix": "10", "name": "Ten",    "name_ko": "10" },
+      { "rank": 11, "slug_suffix": "11", "name": "Page",   "name_ko": "시종" },
+      { "rank": 12, "slug_suffix": "12", "name": "Knight", "name_ko": "기사" },
+      { "rank": 13, "slug_suffix": "13", "name": "Queen",  "name_ko": "여왕" },
+      { "rank": 14, "slug_suffix": "14", "name": "King",   "name_ko": "왕" }
+    ]
+  },
+  "audio": {
+    "bgm": {
+      "directory": "sounds/bgm",
+      "tracks": [
+        {
+          "id": "mystical-ambient",
+          "file": "mystical-ambient.ogg",
+          "duration_sec": 240,
+          "loopable": true,
+          "license": "CC0",
+          "description": "신비롭고 평온한 앰비언트, 무한 루프용"
+        }
+      ]
+    },
+    "sfx": {
+      "directory": "sounds/sfx",
+      "recommended_mapping": {
+        "page_enter":     "chimes/bell-strike.ogg",
+        "shuffle":        "kenney-casino/card-shuffle.ogg",
+        "card_hover":     "kenney-casino/card-slide-1.ogg",
+        "card_select":    "kenney-casino/card-place-2.ogg",
+        "card_flip":      "kenney-casino/card-fan-1.ogg",
+        "card_reveal_magic": "magic-rpg/spell_01.ogg",
+        "result_chime":   "magic-rpg/item_gem_02.ogg",
+        "ui_click":       "magic-rpg/item_coins_01.ogg",
+        "book_open":      "magic-rpg/book_01.ogg"
+      },
+      "packs": [
+        {
+          "id": "kenney-casino",
+          "directory": "kenney-casino",
+          "license": "CC0",
+          "file_count": 54,
+          "categories": ["card", "chip", "dice"]
+        },
+        {
+          "id": "magic-rpg",
+          "directory": "magic-rpg",
+          "license": "CC0",
+          "file_count": 33,
+          "categories": ["spell", "magic", "gem", "coins", "misc"]
+        },
+        {
+          "id": "chimes",
+          "directory": "chimes",
+          "license": "CC BY-SA 4.0",
+          "file_count": 1,
+          "categories": ["bell"],
+          "credit_required": true
+        }
+      ]
+    }
+  }
+}

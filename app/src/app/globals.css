@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply bg-navy text-moonlight font-body antialiased;
+    overflow-x: hidden;
+  }
+  ::selection {
+    @apply bg-gold/40 text-moonlight;
+  }
+}
+
+@layer utilities {
+  .text-glow-gold {
+    text-shadow: 0 0 12px rgba(212, 175, 55, 0.6),
+      0 0 24px rgba(212, 175, 55, 0.3);
+  }
+  .text-glow-soft {
+    text-shadow: 0 0 8px rgba(245, 241, 232, 0.4);
+  }
+  .border-glow {
+    box-shadow: 0 0 16px rgba(212, 175, 55, 0.5),
+      inset 0 0 8px rgba(212, 175, 55, 0.2);
+  }
+}
