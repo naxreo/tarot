@@ -21,21 +21,26 @@ export default function RevealPage() {
     }
   }, [draws, router])
 
+  // 카드를 한 장씩 순차적으로 뒤집는다. 모두 뒤집힌 뒤에는 사용자가 '설명 보기'를 눌러야 다음 단계로 이동한다.
   useEffect(() => {
     if (draws.length === 0) return
-    if (flippedCount >= draws.length) {
-      const t = setTimeout(() => router.push('/reading/result'), 1500)
-      return () => clearTimeout(t)
-    }
+    if (flippedCount >= draws.length) return
     const t = setTimeout(() => {
       playSfx('flip', { volume: 0.5 })
       setTimeout(() => playSfx('reveal', { volume: 0.3 }), 350)
       setFlippedCount((c) => c + 1)
     }, PER_CARD_DELAY)
     return () => clearTimeout(t)
-  }, [flippedCount, draws.length, router])
+  }, [flippedCount, draws.length])
 
   if (draws.length === 0 || !spread) return null
+
+  const allFlipped = flippedCount >= draws.length
+
+  const handleViewDetails = () => {
+    playSfx('click')
+    router.push('/reading/result')
+  }
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center px-6 py-20">
@@ -109,15 +114,38 @@ export default function RevealPage() {
         })}
       </div>
 
-      {flippedCount >= draws.length && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-12 text-center font-script text-2xl text-lavender text-glow-soft"
+      {allFlipped && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="mt-12 flex flex-col items-center gap-6"
         >
-          이제 카드의 이야기를 들어볼 시간입니다
-        </motion.p>
+          <p className="text-center font-script text-2xl text-lavender text-glow-soft">
+            이제 카드의 이야기를 들어볼 시간입니다
+          </p>
+          <button
+            type="button"
+            onClick={handleViewDetails}
+            className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-gold bg-gold/10 px-10 py-4 font-display text-base tracking-widest text-gold backdrop-blur-sm transition hover:scale-105 hover:bg-gold/20"
+          >
+            <span className="relative z-10">설명 보기</span>
+            <svg
+              className="relative z-10 transition group-hover:translate-x-1"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
+        </motion.div>
       )}
     </main>
   )

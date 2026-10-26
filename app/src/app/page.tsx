@@ -29,7 +29,7 @@ export default function LandingPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 1.2 }}
-        className="mt-2 max-w-3xl text-center font-display text-4xl font-bold tracking-wider text-gold text-glow-gold md:text-6xl"
+        className="mt-2 max-w-3xl break-keep text-center font-display text-4xl font-bold tracking-wider text-gold text-glow-gold md:text-6xl"
       >
         당신의 운명을 들여다보세요
       </motion.h1>

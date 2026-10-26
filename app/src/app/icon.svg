@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 노란 원형 배경 -->
+  <circle cx="32" cy="32" r="30" fill="#D4AF37"/>
+  <!-- 다비드의 별: 위/아래로 향하는 두 정삼각형 겹침 -->
+  <polygon points="32,12 49.32,42 14.68,42" fill="none" stroke="#0B0B2A" stroke-width="3" stroke-linejoin="round"/>
+  <polygon points="32,52 49.32,22 14.68,22" fill="none" stroke="#0B0B2A" stroke-width="3" stroke-linejoin="round"/>
+</svg>
