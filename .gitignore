@@ -1,0 +1,2 @@
+# 클러스터 자격증명이 담긴 Secret 매니페스트
+k8s/nexus-secret.yaml

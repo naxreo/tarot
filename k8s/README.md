@@ -9,7 +9,7 @@
 | Region | `ay2dev` (worker 6대 모두 `openstack-vm` / krane) |
 | Namespace | `tarot` (매니페스트가 자동 생성) |
 | IngressClass | `kakao` (kingress) |
-| 이미지 | `idock.daumkakao.io/steve_kim/tarot:latest` (linux/amd64) |
+| 이미지 | `nexus.onkakao.net/kakao-plat-docker-hosted/tarot:latest` (linux/amd64) |
 
 ## 배포 흐름
 
@@ -20,16 +20,30 @@ kubectl config use-context infra-ocell-dev-v2-context
 kubectl config current-context
 ```
 
+### 1-1) nexus pull secret (최초 1회)
+
+nexus 는 익명 pull 이 안 되므로 `tarot` 네임스페이스에 `nexus-onkakao-net` Secret 이 있어야 합니다. 매니페스트를 먼저 apply 해서 네임스페이스를 만든 뒤 생성합니다.
+
+```bash
+CREDS=$(curl -sS https://keystore.dev.onkakao.net/user/key/TvLtNySdfekMsapA -H 'accept: application/json')
+kubectl -n tarot create secret docker-registry nexus-onkakao-net \
+  --docker-server=https://nexus.onkakao.net \
+  --docker-username="$(echo "$CREDS" | jq -r .value.user)" \
+  --docker-password="$(echo "$CREDS" | jq -r .value.passwd)"
+```
+
+같은 내용을 `--dry-run=client -o yaml` 로 뽑아 둔 `k8s/nexus-secret.yaml` 이 있으면 `kubectl apply -f k8s/nexus-secret.yaml` 로 대신합니다. 자격증명이 들어 있어 `.gitignore` 로 제외합니다.
+
 ### 2) 이미지 빌드 & push
 
-타로 앱 디렉터리(`app/`) 에서. `--platform linux/amd64` 필수 (Apple Silicon 빌드 호환).
+타로 앱 디렉터리(`app/`) 에서. `--platform linux/amd64` 필수 (Apple Silicon 빌드 호환). 베이스 이미지도 nexus `docker-proxy-group` 경유라 `docker login nexus.onkakao.net` 이 되어 있어야 합니다. `--provenance=false --sbom=false` 는 nexus 에 `Unknown/Unknown` 아키텍처가 함께 올라가는 것을 막습니다.
 
 ```bash
 cd app
 
-IMAGE=idock.daumkakao.io/steve_kim/tarot:latest
+IMAGE=nexus.onkakao.net/kakao-plat-docker-hosted/tarot:latest
 
-docker build --platform linux/amd64 -t "$IMAGE" .
+docker build --platform linux/amd64 --provenance=false --sbom=false -t "$IMAGE" .
 docker push "$IMAGE"
 
 # 검증 — Platform: linux/amd64 가 보여야 함
@@ -65,8 +79,8 @@ curl -I https://oo.dev.onkakao.net/
 
 ```bash
 cd app
-docker build --platform linux/amd64 -t idock.daumkakao.io/steve_kim/tarot:latest .
-docker push idock.daumkakao.io/steve_kim/tarot:latest
+docker build --platform linux/amd64 --provenance=false --sbom=false -t nexus.onkakao.net/kakao-plat-docker-hosted/tarot:latest .
+docker push nexus.onkakao.net/kakao-plat-docker-hosted/tarot:latest
 
 kubectl -n tarot rollout restart deploy/tarot
 kubectl -n tarot rollout status deploy/tarot
@@ -97,6 +111,6 @@ kubectl -n tarot rollout status deploy/tarot
 | 외부 노출은 `Service.type: NodePort` (ClusterIP 단독 금지) | `Service.spec.type` |
 | GA API 만 사용 (`apps/v1`, `networking.k8s.io/v1`) | K8s 1.26.4 호환 |
 | 표준 라벨 `app.kubernetes.io/{name,instance,part-of,version,managed-by}` | Kyverno user-apps 정책 충돌 방지 |
-| 이미지는 사내 idock + linux/amd64 | DKOS 스킬 §15 |
+| 이미지는 사내 nexus + linux/amd64 | DKOS 스킬 §15 |
 
 상태성 자원(PVC/CNPG 등) 추가 시 SC region 도 `ay2dev` 로 묶고 nodeAffinity 에 `dkosv3.9rum.cc/node-backend: openstack-vm` 추가 필요 (Cinder CSI 는 PM attach 불가).

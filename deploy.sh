@@ -8,7 +8,7 @@
 set -euo pipefail
 
 # ── 설정 ──────────────────────────────────────────────────────────────
-IMAGE="${IMAGE:-idock.daumkakao.io/steve_kim/tarot:latest}"
+IMAGE="${IMAGE:-nexus.onkakao.net/kakao-plat-docker-hosted/tarot:latest}"
 CONTEXT="${CONTEXT:-infra-ocell-dev-v2-context}"
 NAMESPACE="${NAMESPACE:-tarot}"
 DEPLOYMENT="${DEPLOYMENT:-tarot}"
@@ -47,7 +47,7 @@ echo "  context: $(kubectl config current-context)"
 # ── 1. 빌드 + push ────────────────────────────────────────────────────
 if [[ $SKIP_BUILD -eq 0 ]]; then
   step "이미지 빌드 ($PLATFORM)  →  $IMAGE"
-  docker build --platform "$PLATFORM" -t "$IMAGE" "$APP_DIR"
+  docker build --platform "$PLATFORM" --provenance=false --sbom=false -t "$IMAGE" "$APP_DIR"
 
   step "이미지 push"
   docker push "$IMAGE"
