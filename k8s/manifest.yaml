@@ -1,0 +1,159 @@
+# 타로 Next.js 앱을 DKOS infra-ocell-dev-v2 에 kingress 로 노출하는 매니페스트
+# Namespace + Deployment + Service + Ingress 한 파일.
+#
+# 적용. kubectl apply -f manifest.yaml
+# 이미지. idock.daumkakao.io/steve_kim/tarot:latest (linux/amd64)
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tarot
+  labels:
+    app.kubernetes.io/part-of: tarot
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tarot
+  namespace: tarot
+  labels:
+    app.kubernetes.io/name: tarot
+    app.kubernetes.io/instance: tarot
+    app.kubernetes.io/part-of: tarot
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tarot
+      app.kubernetes.io/instance: tarot
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tarot
+        app.kubernetes.io/instance: tarot
+        app.kubernetes.io/part-of: tarot
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: kubectl
+    spec:
+      affinity:
+        nodeAffinity:
+          # worker 노드 풀 + ay2dev region 한정 (ingress/master 노드 제외)
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/worker
+                    operator: Exists
+                  - key: topology.kubernetes.io/region
+                    operator: In
+                    values: [ay2dev]
+        podAntiAffinity:
+          # 가능하면 서로 다른 호스트로 분산
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: tarot
+                    app.kubernetes.io/instance: tarot
+      containers:
+        - name: tarot
+          image: idock.daumkakao.io/steve_kim/tarot:latest
+          # latest 태그를 재사용하므로 매 rollout 마다 이미지 강제 pull
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: HOSTNAME, value: "0.0.0.0" }
+            - { name: PORT, value: "3000" }
+            # KAP_KEYSTORE_AUTH_KEY 는 코드 기본값(ffwogqGXCylOstbb)을 사용한다.
+            # 다른 키로 바꿀 경우에만 아래 주석 해제.
+            # - { name: KAP_KEYSTORE_AUTH_KEY, value: "..." }
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits:   { cpu: 500m, memory: 512Mi }
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tarot
+  namespace: tarot
+  labels:
+    app.kubernetes.io/name: tarot
+    app.kubernetes.io/instance: tarot
+  annotations:
+    # ★ kingress LB pool 등록을 위해 Ingress 와 동일한 region 어노테이션 필수
+    topology.kubernetes.io/region: ay2dev
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: tarot
+    app.kubernetes.io/instance: tarot
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tarot
+  namespace: tarot
+  labels:
+    app.kubernetes.io/name: tarot
+    app.kubernetes.io/instance: tarot
+  annotations:
+    # ★ kingress 가 LB 를 만들 region. Service 어노테이션과 같은 값.
+    topology.kubernetes.io/region: ay2dev
+    # 사내 표준 관찰성 라벨 (kingress sys 정책이 참조)
+    kakao.observability.io/app-name: TAROT
+    kakao.observability.io/phase: DEV
+    kakao.observability.io/service-id: TAROT
+    kakao.observability.io/zone: DEV
+spec:
+  ingressClassName: kakao
+  rules:
+    - host: oo.dev.onkakao.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tarot
+                port:
+                  number: 80
+  tls:
+    # secretName 미지정 — *.dev.onkakao.net 와일드카드 인증서를 kingress 가 자동 부착
+    - hosts:
+        - oo.dev.onkakao.net
